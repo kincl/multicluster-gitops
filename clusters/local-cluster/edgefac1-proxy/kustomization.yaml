@@ -1,0 +1,12 @@
+resources:
+- namespace.yaml
+- ../console-proxy
+
+namespace: edgefac1-proxy
+
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+- name: proxy-config
+  files:
+  - nginx.conf

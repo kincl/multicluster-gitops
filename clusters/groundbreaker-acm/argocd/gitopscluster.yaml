@@ -1,0 +1,22 @@
+# from https://github.com/stolostron/multicloud-integrations/blob/main/examples/gitopscluster.yaml
+# Creates a gitopscluster resource
+#
+# Requires:
+#  Openshift-GitOps operator be installed in the project "openshift-gitops"
+#  Placement resource "default" exists
+#  A clusterSet is bound to the openshift-gitops namespace 
+---
+apiVersion: apps.open-cluster-management.io/v1beta1
+kind: GitOpsCluster
+metadata:
+  name: argo-acm-importer
+  namespace: openshift-gitops
+spec:
+  argoServer:
+    cluster: notused
+    argoNamespace: openshift-gitops
+  placementRef:
+    kind: Placement
+    apiVersion: cluster.open-cluster-management.io/v1beta1
+    name: default
+    namespace: openshift-gitops

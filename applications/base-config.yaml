@@ -1,0 +1,43 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: base-config-placement
+  namespace: openshift-gitops
+spec:
+  clusterSets:
+    - global
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: base-config
+  namespace: openshift-gitops
+spec:
+  generators:
+  - clusterDecisionResource:
+      configMapRef: acm-placement
+      labelSelector:
+        matchLabels:
+          cluster.open-cluster-management.io/placement: base-config-placement
+      requeueAfterSeconds: 30
+  template:
+    metadata:
+      labels:
+        velero.io/exclude-from-backup: "true"
+      name: base-config-{{name}}
+    spec:
+      destination:
+        namespace: openshift-ingress
+        server: '{{server}}'
+      project: default
+      source:
+        path: cluster-config/global/base-config
+        repoURL: https://github.com/kincl/multicluster-gitops.git
+        targetRevision: main
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true

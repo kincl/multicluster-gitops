@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../../global/cluster-certificates
+
+patches:
+- patch: |-
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: letsencrypt-ingress
+      namespace: openshift-ingress
+    spec:
+      commonName: "*.apps.groundbreaker-edgefac1.rhtps.io"
+      dnsNames:
+      - "*.apps.groundbreaker-edgefac1.rhtps.io"
+- patch: |-
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: letsencrypt-api
+      namespace: openshift-config
+    spec:
+      commonName: "api.groundbreaker-edgefac1.rhtps.io"
+      dnsNames:
+      - "api.groundbreaker-edgefac1.rhtps.io"
+- patch: |-
+    apiVersion: config.openshift.io/v1
+    kind: APIServer
+    metadata:
+      name: cluster
+    spec:
+      servingCerts:
+        namedCertificates:
+        - names:
+          - "api.groundbreaker-edgefac1.rhtps.io"
+          servingCertificate:
+            name: letsencrypt-api
+- patch: |-
+    apiVersion: operator.openshift.io/v1
+    kind: IngressController
+    metadata:
+      name: default
+      namespace: openshift-ingress-operator
+    spec:
+      replicas: 1

@@ -1,0 +1,5 @@
+resources:
+- classification-banner.yaml
+- oauth.yaml
+- group.yaml
+- clusterrolebinding.yaml

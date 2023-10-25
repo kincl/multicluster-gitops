@@ -1,0 +1,21 @@
+apiVersion: operator.openshift.io/v1
+kind: IngressController
+metadata:
+  name: default
+  namespace: openshift-ingress-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  clientTLS:
+    clientCA:
+      name: ''
+    clientCertificatePolicy: ''
+  httpCompression: {}
+  httpEmptyRequestsPolicy: Respond
+  httpErrorCodePages:
+    name: ''
+  replicas: 2
+  tuningOptions:
+    reloadInterval: 0s
+  defaultCertificate:
+    name: letsencrypt-ingress

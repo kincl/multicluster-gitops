@@ -1,0 +1,58 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../../global/cluster-certificates
+- credentialrequest-azure.yaml
+
+patches:
+- patch: |-
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: letsencrypt-ingress
+      namespace: openshift-ingress
+    spec:
+      commonName: "*.apps.groundbreaker-azure.9zdlw.azure.redhatworkshops.io"
+      dnsNames:
+      - "*.apps.groundbreaker-azure.9zdlw.azure.redhatworkshops.io"
+- patch: |-
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: letsencrypt-api
+      namespace: openshift-config
+    spec:
+      commonName: "api.groundbreaker-azure.9zdlw.azure.redhatworkshops.io"
+      dnsNames:
+      - "api.groundbreaker-azure.9zdlw.azure.redhatworkshops.io"
+- patch: |-
+    apiVersion: config.openshift.io/v1
+    kind: APIServer
+    metadata:
+      name: cluster
+    spec:
+      servingCerts:
+        namedCertificates:
+        - names:
+          - "api.groundbreaker-azure.9zdlw.azure.redhatworkshops.io"
+          servingCertificate:
+            name: letsencrypt-api
+- patch: |-
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt
+    spec:
+      acme:
+        solvers:
+        - dns01:
+            azureDNS:
+              clientID: fcf2ad51-159f-4c99-9194-61666b346d66
+              clientSecretSecretRef:
+                name: cloud-credentials
+                key: azure_client_secret
+              subscriptionID: b5c9ad97-c628-451e-9adf-eb2c496ef846
+              tenantID: 64dc69e4-d083-49fc-9569-ebece1dd1408
+              resourceGroupName: openenv-9zdlw
+              hostedZoneName: 9zdlw.azure.redhatworkshops.io

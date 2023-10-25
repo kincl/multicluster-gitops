@@ -1,0 +1,10 @@
+resources:
+- service.yaml
+- deployment.yaml
+- scc.yaml
+
+namespace: edgefac1-proxy
+
+commonLabels:
+  app.kubernetes.io/name: proxy
+

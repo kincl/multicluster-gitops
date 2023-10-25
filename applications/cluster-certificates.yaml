@@ -1,0 +1,43 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: cluster-certificates-placement
+  namespace: openshift-gitops
+spec:
+  clusterSets:
+    - global
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-certificates
+  namespace: openshift-gitops
+spec:
+  generators:
+  - clusterDecisionResource:
+      configMapRef: acm-placement
+      labelSelector:
+        matchLabels:
+          cluster.open-cluster-management.io/placement: cluster-certificates-placement
+      requeueAfterSeconds: 30
+  template:
+    metadata:
+      labels:
+        velero.io/exclude-from-backup: "true"
+      name: cluster-certificates-{{name}}
+    spec:
+      destination:
+        namespace: openshift-ingress
+        server: '{{server}}'
+      project: default
+      source:
+        path: groundbreaker-project/clusters/{{name}}/cluster-certificates
+        repoURL: https://github.com/kincl/multicluster-gitops.git
+        targetRevision: main
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - PruneLast=true
